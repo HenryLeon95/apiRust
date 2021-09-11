@@ -12,18 +12,13 @@ let tweet = models::Tweet {
     msg: String::from("mensaje"),
 };*/
 
-
 async fn get() -> impl Responder {
     format!("API RUST")
 }
 
-
 async fn getAll() -> impl Responder {
     format!("Obteniendo todos los tweets")
 }
-
-
-
 
 /*
 // Asynchronous Function that Returns a String
@@ -55,6 +50,7 @@ async fn greet(req: HttpRequest) -> impl Responder {
 // Decorator, procedural macro. Grab all the code below and plug it into a tokyo times.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // To use environment variables
     dotenv::dotenv().ok();
     let port = std::env::var("PORT").unwrap_or("4001".to_string());
     let address = format!("127.0.0.1:{}", port);
@@ -78,18 +74,18 @@ async fn main() -> std::io::Result<()> {
             .route("/getAll", web::get().to(getAll))
             .route("/{name}", web::get().to(get))
 
-            /*
-            // Test Routes
-            .route("/test", web::get().to(greet))
-            // In case we want a Route to be shared in the same thread, the variable thread_index is used
-            .route("/health", web::get().to(move || {
-                HttpResponse::Ok()
-                    .header("thread-id", thread_index.to_string())
-                    .finish()
-                }),
-            )
-            //ASYMC -> Convert any instance within async to a Future
-            .route("/str", web::get().to(|| async { "Hello Rust" }))*/
+        /*
+        // Test Routes
+        .route("/test", web::get().to(greet))
+        // In case we want a Route to be shared in the same thread, the variable thread_index is used
+        .route("/health", web::get().to(move || {
+            HttpResponse::Ok()
+                .header("thread-id", thread_index.to_string())
+                .finish()
+            }),
+        )
+        //ASYMC -> Convert any instance within async to a Future
+        .route("/str", web::get().to(|| async { "Hello Rust" }))*/
     })
     .bind(&address)?
     //.workers(1) //Indicate the amount of cores we want to use

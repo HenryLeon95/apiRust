@@ -1,13 +1,11 @@
 #![allow(non_snake_case)]
-use chrono::prelude::*;
 use mysql::prelude::*;
 use mysql::*; //For date and time
 
 fn main() {
-    //Para utilizar las variables de entorno
     dotenv::dotenv().ok();
-    let port = std::env::var("PORT").unwrap_or("4001".to_string());
-    let address = format!("127.0.0.1:{}", port);
+    //let port = std::env::var("PORT").unwrap_or("4001".to_string());
+    //let address = format!("127.0.0.1:{}", port);
     let user_db = std::env::var("USER_DB")
         .unwrap_or("mysql".to_string())
         .to_string();
