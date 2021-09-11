@@ -1,98 +1,52 @@
 #![allow(non_snake_case)]
+use chrono::prelude::*;
+use mysql::prelude::*;
+use mysql::*; //For date and time
 
-extern crate dotenv;
-//use actix_web -> Import a series of elementor
-//use std::sync::atomic::{AtomicU16, Ordering};
-//use std::sync::Arc;
-use actix_web::{web, App, HttpServer, Responder};
-
-/*
-let tweet = models::Tweet {
-    name: String::from(("prueba"),
-    msg: String::from("mensaje"),
-};*/
-
-
-async fn get() -> impl Responder {
-    format!("API RUST")
-}
-
-
-async fn getAll() -> impl Responder {
-    format!("Obteniendo todos los tweets")
-}
-
-
-
-
-/*
-// Asynchronous Function that Returns a String
-// Gets the name parameter of the request and if it does not exist, adds the value World
-async fn greet(req: HttpRequest) -> impl Responder {
-    let name = req.match_info().get("name").unwrap_or("World");
-    format!("Hello {}!", &name)
-}*/
-
-// Entry point
-// Returns a Result of type IO.
-// If everything goes well it returns a unit type. If there is an error, it returns an IO type.
-// All the code with the decorator is equal to:
-// fn main() -> std::io::Result<()> {
-//     actix_web::rt::System::new("main").block_on(
-//         async {
-//             HttpServer::new(|| {
-//                 App::new()
-//                     .route("/", web::get().to(greet))
-//                     .route("/{name}", web::get().to(greet))
-//             })
-//             .bind(("127.0.0.1", 5001))?
-//             .run()
-//             .await
-//         }
-//     )
-// }
-
-// Decorator, procedural macro. Grab all the code below and plug it into a tokyo times.
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+fn main() {
+    //Para utilizar las variables de entorno
     dotenv::dotenv().ok();
     let port = std::env::var("PORT").unwrap_or("4001".to_string());
     let address = format!("127.0.0.1:{}", port);
-    println!("Starting our server");
+    let user_db = std::env::var("USER_DB")
+        .unwrap_or("mysql".to_string())
+        .to_string();
+    let pass = std::env::var("PASS")
+        .unwrap_or("1234".to_string())
+        .to_string();
+    let host = std::env::var("HOST")
+        .unwrap_or("localhost".to_string())
+        .to_string();
+    let port_db = std::env::var("PORT_DB")
+        .unwrap_or("3306".to_string())
+        .to_string()
+        .parse::<u16>()
+        .unwrap();
+    let database = std::env::var("DATABASE")
+        .unwrap_or("mysql".to_string())
+        .to_string();
 
-    // Initializing Atomic Integer (It can be used safely in all threads to be executed)
-    // let thread_counter = Arc::new(AtomicU16::new(1));
+    let url = format!(
+        "mysql://{}:{}@{}:{}/{}",
+        user_db, pass, host, port_db, database
+    );
+    let opts = Opts::from_url(&url).unwrap();
+    let pool = Pool::new(opts).unwrap();
+    let mut conn = pool.get_conn().unwrap();
 
-    // Move converts any variable captured by reference or muteable reference to variables captured by value.
-    HttpServer::new(move || {
-        // The number of times of the Core's that we have is run
-        // println!(
-        //     "Starting thread {}",
-        //     //fetch_add -> ends up mutating the value of the counter, adds 1 and returns it for each core
-        //     thread_counter.fetch_add(1, Ordering::SeqCst)
-        // );
-        // let thread_index = thread_counter.load(Ordering::SeqCst);
+    //Una consulta simple
+    conn.query_iter("select id, nombre, comentario from publicaciones")
+        .unwrap()
+        .for_each(|row| {
+            let r: (i32, String, String) = from_row(row.unwrap());
+            println!("{}, {}, {}", r.0, r.1, r.2);
+        });
 
-        App::new()
-            .route("/", web::get().to(get))
-            .route("/getAll", web::get().to(getAll))
-            .route("/{name}", web::get().to(get))
-
-            /*
-            // Test Routes
-            .route("/test", web::get().to(greet))
-            // In case we want a Route to be shared in the same thread, the variable thread_index is used
-            .route("/health", web::get().to(move || {
-                HttpResponse::Ok()
-                    .header("thread-id", thread_index.to_string())
-                    .finish()
-                }),
-            )
-            //ASYMC -> Convert any instance within async to a Future
-            .route("/str", web::get().to(|| async { "Hello Rust" }))*/
-    })
-    .bind(&address)?
-    //.workers(1) //Indicate the amount of cores we want to use
-    .run()
-    .await
+    //Consulta guardando en un vector
+    let res: Vec<(i32, String, String)> = conn
+        .query("select id, nombre, comentario from publicaciones")
+        .unwrap();
+    for r in res {
+        println!("{}, {}, {}", r.0, r.1, r.2);
+    }
 }
