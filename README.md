@@ -12,3 +12,7 @@ The MySQL client API is quite easy to use. I love the way it converts data to wh
 ## Part 2.
 In part 1 I discussed how to do basic query. In this article we will learn to do inserts and updates. We will continue to work with the PUBLICATION table.<br><br>
 In this part we learned to do insert, update and delete. Go to Part III where we will build a proper data access layer.
+
+## Part 3.
+In Part II we explored how to insert, update and delete rows. In this part we will build a database access layer. It will be a set of functions that perform database access.<br>
+We will continue to work with the PUBLICATION table we created earlier.<br><br>
