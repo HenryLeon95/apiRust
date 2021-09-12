@@ -10,10 +10,10 @@ pub struct Publication {
     pub Downvote: u64,
 }
 
-//Insertar una publicación del Json
-/* Una función que inserta un elemento debe devolver:
-El ID generado si la inserción es exitosa. O,
-Un error si algo sale mal. La API de MySQL funciona con el mysql::error::Errortipo de errores.*/
+// Insert a Json post
+/* A function that inserts an element should return:
+The ID generated if the insert is successful. OR,
+An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
 pub fn insert_publication(
     conn: &mut PooledConn,
     publication: &Publication,
@@ -30,14 +30,15 @@ pub fn insert_publication(
     )
     .and_then(|_| Ok(conn.last_insert_id()))
 }
-/* Tenga en cuenta algunas cosas sobre la propiedad:
-La insert_product()función recibe una referencia a Productpara evitar mover la propiedad a la función.
-Suministramos referencia a codey product_namea la paramsmacro por la misma razón. Podríamos haber clonado las cadenas. Pero eso es una sobrecarga innecesaria. */
+// Insert to Json post
+/* A function that inserts an element should return:
+The ID generated if the insert is successful. OR,
+An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
 
-//Consulta o Reportes
-/* Una función que realiza una consulta puede devolver:
-Un vector lleno de elementos.
-O un error */
+// Query or Reports
+/* A function that performs a query can return:
+A vector full of elements.
+Or an error */
 // pub fn find_product_in_(
 //     conn: &mut PooledConn,
 //     price_from: f32,
@@ -58,12 +59,12 @@ O un error */
 //     )
 // }
 
-//Consulta Por ID
-/* Cuando consultamos un elemento por clave primaria, podemos tener tres posibles resultados:
-Se encontró el artículo
-No se encuentra el artículo
-Algún tipo de error
-Esto se puede modelar mediante un tipo de retorno std::result::Result<Option<T>, mysql::error::Error>. */
+// Query By ID
+/* When we query an element by primary key, we can have three possible results:
+Item Found
+Item not found
+Some kind of mistake
+This can be modeled by a return type std :: result :: Result <Option <T>, mysql :: error :: Error>. */
 pub fn find_publication_by_id(
     conn: &mut PooledConn,
     id: u64,
@@ -86,7 +87,7 @@ pub fn find_publication_by_id(
     )
 }
 
-// Obtener todos los datos de una tabla
+// Get all the data from a table
 pub fn get_all_publications(
     conn: &mut PooledConn,
 ) -> std::result::Result<Vec<Publication>, mysql::error::Error> {
