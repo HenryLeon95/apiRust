@@ -2,7 +2,8 @@
 
 Api programmed in the Rust language with connection to a MySql database hosted on GCP.<br>
 To test each piece of code, you can comment and uncomment the blocks to interact with them and practice as you like.<br>
-You can try the code located in the file example1.rs, example2.rs, example3.rs and main.rs.
+You can try the code located in the file example1.rs, example2.rs, example3.rs and main.rs.<br><br>
+Current Version: <b>1.0.0</b><br>Developed by: <b>Henry León</b>
 <br><br>
 
 ## Part 1.
