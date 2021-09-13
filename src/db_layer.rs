@@ -1,6 +1,10 @@
 use mysql::prelude::*;
 use mysql::*;
+use serde::{Serialize, Deserialize};
 
+/* Now we will make it possible for our Productestructure to convert to and from JSON. Open db_layer.rs. Add this use statement. */
+/* Make the Product framework implement Serialize and Deserialize. */
+#[derive(Serialize, Deserialize)]
 pub struct Publication {
     pub Id: u64,
     pub Name: String,
@@ -10,22 +14,34 @@ pub struct Publication {
     pub Downvote: u64,
 }
 
+
+#[derive(Serialize, Deserialize)]
+pub struct NewPublication {
+    pub nombre: String,
+    pub comentario: String,
+    pub fecha: String,
+    pub upvotes: u64,
+    pub downvotes: u64,
+}
+
+
+
 // Insert a Json post
 /* A function that inserts an element should return:
 The ID generated if the insert is successful. OR,
 An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
 pub fn insert_publication(
     conn: &mut PooledConn,
-    publication: &Publication,
+    publication: &NewPublication,
 ) -> std::result::Result<u64, mysql::error::Error> {
     conn.exec_drop(
         "insert into publicaciones (nombre, comentario, fecha, upvotes, downvotes) values (:nombre, :comentario, :fecha, :upvotes, :downvotes)",
         params! {
-            "nombre" => &publication.Name,
-            "comentario" => &publication.Comment,
-            "fecha" => &publication.Date,
-            "upvotes" => &publication.Upvote,
-            "downvotes" => &publication.Downvote,
+            "nombre" => &publication.nombre,
+            "comentario" => &publication.comentario,
+            "fecha" => &publication.fecha,
+            "upvotes" => &publication.upvotes,
+            "downvotes" => &publication.downvotes,
         },
     )
     .and_then(|_| Ok(conn.last_insert_id()))

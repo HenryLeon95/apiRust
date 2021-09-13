@@ -1,11 +1,15 @@
 #![allow(non_snake_case)]
+mod ws;
 mod db_layer;
+ 
 use mysql::*;
+use actix_web::*;
 
-fn main() {
+#[actix_rt::main]
+async fn main() {
     dotenv::dotenv().ok();
-    //let port = std::env::var("PORT").unwrap_or("4001".to_string());
-    //let address = format!("127.0.0.1:{}", port);
+    let port = std::env::var("PORT").unwrap_or("4001".to_string());
+    let address = format!("127.0.0.1:{}", port);
     let user_db = std::env::var("USER_DB").unwrap_or("mysql".to_string());
     let pass = std::env::var("PASS").unwrap_or("1234".to_string());
     let host = std::env::var("HOST").unwrap_or("localhost".to_string());
@@ -16,33 +20,32 @@ fn main() {
         user_db, pass, host, port_db, database
     );
     let opts = Opts::from_url(&url).unwrap();
-    if let Ok(pool) = Pool::new(opts) {
-        if let Ok(mut conn) = pool.get_conn() {
-            let publication = db_layer::Publication {
-                Id: 0,
-                Name: String::from("Rust 2"),
-                Comment: String::from("Comentario medio de Rust 2"),
-                Date: String::from("11/09/2021"),
-                //Upvote: db_layer:: 23,
-                Upvote: 23,
-                Downvote: 1,
-            };
-            match db_layer::insert_publication(&mut conn, &publication) {
-                Ok(last_id) => println!("Inserted product with ID {}", last_id),
-                Err(e) => println!("Error: {:?}", e),
-            }
-            match db_layer::find_publication_by_id(&mut conn, 9) {
-                Ok(res) => match res {
-                    Some(p) => println!("Found product {}", p.Name),
-                    None => println!("Publication not found"),
-                },
-                Err(e) => println!("Error: {:?}", e),
-            }
-            let _ = db_layer::get_all_publications(&mut conn).map(|list| {
-                for p in list {
-                    println!("Found publication {}", p.Name);
-                }
-            });
+     
+    let pool = match Pool::new(opts) {
+        Ok(pool) => pool,
+        Err(e) => {
+            println!("Failed to open DB connection. {:?}", e); return;
         }
-    }
+    };
+ 
+    let shared_data = web::Data::new(pool);
+ 
+    let server = match HttpServer::new(move || {
+        App::new()
+            .app_data(shared_data.clone())
+            .service(ws::get_publication_byParams)
+            .service(ws::getPublication_byId)
+            .service(ws::create_publication)
+    }).bind(&address) {
+        Ok(s) => s,
+        Err(e) => {
+            println!("Failed to bind port. {:?}", e);
+            return;
+        }
+    };
+ 
+    match server.run().await {
+        Ok(_) => println!("Server exited normally."),
+        Err(e) => println!("Server exited with error: {:?}", e),
+    };
 }
