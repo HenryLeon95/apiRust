@@ -23,4 +23,5 @@ Go to Part IV where we will expose the data access layer using a web service.
 <br><br>
 
 ## Part 4.
-In Part III we built a module for database access. In this post we will bring the whole series to its conclusion. We will build a web service layer to expose the data access layer to the outside world. We will use the actix web framework.<br>
+In Part III we built a module for database access. In this post we will bring the whole series to its conclusion. We will build a web service layer to expose the data access layer to the outside world. We will use the actix web framework.<br><br>
+In this series of posts we started by doing simple queries to MySQL. We ended by creating a web service.
