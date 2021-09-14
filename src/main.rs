@@ -1,9 +1,8 @@
 #![allow(non_snake_case)]
-mod ws;
 mod db_layer;
- 
-use mysql::*;
+mod ws;
 use actix_web::*;
+use mysql::*;
 
 #[actix_rt::main]
 async fn main() {
@@ -20,16 +19,14 @@ async fn main() {
         user_db, pass, host, port_db, database
     );
     let opts = Opts::from_url(&url).unwrap();
-     
     let pool = match Pool::new(opts) {
         Ok(pool) => pool,
         Err(e) => {
-            println!("Failed to open DB connection. {:?}", e); return;
+            println!("Failed to open DB connection. {:?}", e);
+            return;
         }
     };
- 
     let shared_data = web::Data::new(pool);
- 
     let server = match HttpServer::new(move || {
         App::new()
             .app_data(shared_data.clone())
@@ -38,14 +35,15 @@ async fn main() {
             .service(ws::create_publication)
             .service(ws::saveR)
             .service(ws::get_All)
-    }).bind(&address) {
+    })
+    .bind(&address)
+    {
         Ok(s) => s,
         Err(e) => {
             println!("Failed to bind port. {:?}", e);
             return;
         }
     };
- 
     match server.run().await {
         Ok(_) => println!("Server exited normally."),
         Err(e) => println!("Server exited with error: {:?}", e),

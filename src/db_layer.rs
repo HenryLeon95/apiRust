@@ -1,6 +1,6 @@
 use mysql::prelude::*;
 use mysql::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /* Now we will make it possible for our Productestructure to convert to and from JSON. Open db_layer.rs. Add this use statement. */
 /* Make the Product framework implement Serialize and Deserialize. */
@@ -14,7 +14,6 @@ pub struct Publication {
     pub Downvote: u64,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct NewPublication {
     pub nombre: String,
@@ -24,7 +23,6 @@ pub struct NewPublication {
     pub downvotes: u64,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewData {
     pub nombre: String,
@@ -32,18 +30,14 @@ pub struct NewData {
     pub fecha: String,
     pub upvotes: u64,
     pub downvotes: u64,
-    pub hashtags: Vec<String>
+    pub hashtags: Vec<String>,
 }
-
 
 #[derive(Serialize, Deserialize)]
 pub struct Newhashtag {
     pub hashtag: String,
     pub publicacion: u64,
 }
-
-
-
 
 // Insert a Json post
 /* A function that inserts an element should return:
@@ -69,7 +63,6 @@ pub fn insert_publication2(
 /* A function that inserts an element should return:
 The ID generated if the insert is successful. OR,
 An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
-
 
 pub fn insert_publication(
     conn: &mut PooledConn,
@@ -102,7 +95,6 @@ pub fn insert_hashtag(
     )
     .and_then(|_| Ok(conn.last_insert_id()))
 }
-
 
 // Query or Reports
 /* A function that performs a query can return:

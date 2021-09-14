@@ -21,9 +21,7 @@ pub async fn get_All(data: web::Data<Pool>) -> HttpResponse {
         .get_conn()
         .and_then(|mut conn| get_all_publications(&mut conn))
     {
-        Ok(result_list) => {
-            HttpResponse::Ok().json(result_list)
-        }
+        Ok(result_list) => HttpResponse::Ok().json(result_list),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -77,10 +75,12 @@ pub async fn getPublication_byId(path: web::Path<u64>, data: web::Data<Pool>) ->
 /* This endpoint will use POST to / publication URL and take a Publication JSON as request body.
 It will return the newly added JSON from Publication as a response. */
 #[post("/publication")]
-pub async fn create_publication(publication_json: web::Json<NewPublication>, data: web::Data<Pool>) -> HttpResponse {
+pub async fn create_publication(
+    publication_json: web::Json<NewPublication>,
+    data: web::Data<Pool>,
+) -> HttpResponse {
     println!("POST");
     let publication = publication_json.into_inner();
- 
     match data
         .get_conn()
         .and_then(|mut conn| insert_publication2(&mut conn, &publication))
@@ -93,7 +93,7 @@ pub async fn create_publication(publication_json: web::Json<NewPublication>, dat
             //     ..publication
             // })
             HttpResponse::Ok().json(id)
-        },
+        }
         Err(_) => {
             println!("Error al insertar la publicación");
             HttpResponse::InternalServerError().finish()
