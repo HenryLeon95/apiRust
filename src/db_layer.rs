@@ -25,12 +25,31 @@ pub struct NewPublication {
 }
 
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NewData {
+    pub nombre: String,
+    pub comentario: String,
+    pub fecha: String,
+    pub upvotes: u64,
+    pub downvotes: u64,
+    pub hashtags: Vec<String>
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct Newhashtag {
+    pub hashtag: String,
+    pub publicacion: u64,
+}
+
+
+
 
 // Insert a Json post
 /* A function that inserts an element should return:
 The ID generated if the insert is successful. OR,
 An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
-pub fn insert_publication(
+pub fn insert_publication2(
     conn: &mut PooledConn,
     publication: &NewPublication,
 ) -> std::result::Result<u64, mysql::error::Error> {
@@ -50,6 +69,40 @@ pub fn insert_publication(
 /* A function that inserts an element should return:
 The ID generated if the insert is successful. OR,
 An error if something goes wrong. The MySQL API works with the mysql :: error :: Error type. */
+
+
+pub fn insert_publication(
+    conn: &mut PooledConn,
+    publication: &NewData,
+) -> std::result::Result<u64, mysql::error::Error> {
+    conn.exec_drop(
+        "insert into publicaciones (nombre, comentario, fecha, upvotes, downvotes) values (:nombre, :comentario, :fecha, :upvotes, :downvotes)",
+        params! {
+            "nombre" => &publication.nombre,
+            "comentario" => &publication.comentario,
+            "fecha" => &publication.fecha,
+            "upvotes" => &publication.upvotes,
+            "downvotes" => &publication.downvotes,
+        },
+    )
+    .and_then(|_| Ok(conn.last_insert_id()))
+}
+
+pub fn insert_hashtag(
+    conn: &mut PooledConn,
+    hashtag: String,
+    publicacion: u64,
+) -> std::result::Result<u64, mysql::error::Error> {
+    conn.exec_drop(
+        "insert into hashtags (hashtag, publicacion) values (:hashtag, :publicacion)",
+        params! {
+            "hashtag" => &hashtag,
+            "publicacion" => &publicacion,
+        },
+    )
+    .and_then(|_| Ok(conn.last_insert_id()))
+}
+
 
 // Query or Reports
 /* A function that performs a query can return:

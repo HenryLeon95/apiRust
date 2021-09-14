@@ -36,6 +36,8 @@ async fn main() {
             .service(ws::get_publication_byParams)
             .service(ws::getPublication_byId)
             .service(ws::create_publication)
+            .service(ws::saveR)
+            .service(ws::get_All)
     }).bind(&address) {
         Ok(s) => s,
         Err(e) => {

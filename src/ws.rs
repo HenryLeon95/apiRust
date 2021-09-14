@@ -2,16 +2,30 @@
 use super::db_layer::*;
 use actix_web::*;
 use mysql::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
 pub struct PublicationQuery {
     pub Id: u64,
-    // pub Name: String,
-    // pub Comment: String,
-    // pub Date: String,
-    // pub Upvote: u64,
-    // pub Downvote: u64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ResponseQuery {
+    pub Status: bool,
+}
+
+//Get all the data
+#[get("/getAllR")]
+pub async fn get_All(data: web::Data<Pool>) -> HttpResponse {
+    match data
+        .get_conn()
+        .and_then(|mut conn| get_all_publications(&mut conn))
+    {
+        Ok(result_list) => {
+            HttpResponse::Ok().json(result_list)
+        }
+        Err(_) => HttpResponse::InternalServerError().finish(),
+    }
 }
 
 // Get data by various parameters
@@ -69,7 +83,7 @@ pub async fn create_publication(publication_json: web::Json<NewPublication>, dat
  
     match data
         .get_conn()
-        .and_then(|mut conn| insert_publication(&mut conn, &publication))
+        .and_then(|mut conn| insert_publication2(&mut conn, &publication))
     {
         Ok(id) => {
             println!("Publicación guardada correctamente");
@@ -83,6 +97,45 @@ pub async fn create_publication(publication_json: web::Json<NewPublication>, dat
         Err(_) => {
             println!("Error al insertar la publicación");
             HttpResponse::InternalServerError().finish()
+        }
+    }
+}
+
+#[post("/saveR")]
+pub async fn saveR(publication_json: web::Json<NewData>, data: web::Data<Pool>) -> HttpResponse {
+    //println!("Iniciando Post");
+    let publication = publication_json.into_inner();
+    let mut result = ResponseQuery { Status: true };
+    match data
+        .get_conn()
+        .and_then(|mut conn| insert_publication(&mut conn, &publication))
+    {
+        Ok(id) => {
+            //println!("Publicación guardada correctamente, procediendo a insertar hashtags");
+            for i in publication.hashtags {
+                //println!("{}", i);
+                match data
+                    .get_conn()
+                    .and_then(|mut conn| insert_hashtag(&mut conn, i, id))
+                {
+                    Ok(_) => {
+                        //println!("Hashtag guardado");
+                        result.Status = true;
+                    }
+                    Err(_) => {
+                        //println!("Error al insertar el hashtag");
+                        result.Status = false;
+                    }
+                }
+            }
+            result.Status = true;
+            HttpResponse::Ok().json(result)
+        }
+        Err(_) => {
+            //println!("Error al insertar la publicación");
+            result.Status = true;
+            HttpResponse::Ok().json(result)
+            //HttpResponse::InternalServerError().finish()
         }
     }
 }
